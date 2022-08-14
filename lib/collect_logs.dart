@@ -63,7 +63,7 @@ Future<List<Log>> readLogs(Params params) async {
   final db = sqlite3.open(params.logPath, mode: OpenMode.readOnly);
 
   final ResultSet resultSet = db.select(_requestText, [params.startLogRecord, params.endLogRecord]);
-  printError('${resultSet.length} : ${params.logPath}');
+  logInfo('[readLogs] ${params.database} ${resultSet.length}');
   for (var row in resultSet) {
     final log = Log(
       id: row['id'],
@@ -105,12 +105,16 @@ Future<void> saveLogsToElastic(List<Log> logs) async {
   var options = BaseOptions(
       connectTimeout: 5000, receiveTimeout: 3000, headers: <String, String>{'authorization': auth, 'Content-Type': 'application/json'});
   final dio = Dio(options);
+  int count = 0;
   for (final log in logs) {
     final url = '${Config.kElasticUrl}/$table/_doc/${log.id}';
     final json = jsonEncode(log);
     final response = await dio.post(url, data: json);
 
-    logInfo('[response] ${response.statusCode} ${log.database} ${log.id} ${log.date}');
+    count++;
+    if (count == 0 || count == logs.length || count % 10000 == 0) {
+      logInfo('[response] ${response.statusCode} ${log.database} ${log.id} ${log.date}');
+    }
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw 'Elastic response error: ${response.statusCode} ${response.statusMessage} ${response.toString()}';
     }
