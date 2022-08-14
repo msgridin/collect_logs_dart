@@ -24,7 +24,7 @@ logError(String error) {
 
   final now = DateTime.now();
   final file = File(Config.kLogErrorFileName);
-  file.writeAsStringSync("${DateFormat('dd MMM hh:mm:ss').format(now)} $error\n", mode: FileMode.append);
+  file.writeAsStringSync("${DateFormat('HH:mm:ss dd MMM').format(now)} $error\n", mode: FileMode.append);
 }
 
 logInfo(String info) {
@@ -32,5 +32,10 @@ logInfo(String info) {
 
   final now = DateTime.now();
   final file = File(Config.kLogInfoFileName);
-  file.writeAsStringSync("${DateFormat('dd MMM hh:mm:ss').format(now)} $info\n", mode: FileMode.append);
+  file.writeAsStringSync("${DateFormat('HH:mm:ss dd MMM').format(now)} $info\n", mode: FileMode.append);
+}
+
+logClear() {
+  final file = File(Config.kLogInfoFileName);
+  file.writeAsStringSync("", mode: FileMode.write);
 }
