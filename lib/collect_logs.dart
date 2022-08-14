@@ -21,7 +21,7 @@ Future<void> doCollectLogs() async {
       final logs = await readLogs(params);
       await saveLogsToElastic(logs);
     }
-  } catch(e) {
+  } catch (e) {
     logError(e.toString());
   }
 }
@@ -58,7 +58,10 @@ Future<List<Log>> readLogs(Params params) async {
   final file = File(params.logPath);
   open.overrideFor(OperatingSystem.windows, _openOnWindows);
 
-  if (!file.existsSync()) throw 'Log file not exists: ${params.logPath}';
+  if (!file.existsSync()) {
+    logInfo('[readLogs] Log file not exists: ${params.logPath}');
+    return logs;
+  }
 
   final db = sqlite3.open(params.logPath, mode: OpenMode.readOnly);
 
@@ -81,8 +84,8 @@ Future<List<Log>> readLogs(Params params) async {
       status: parseBoolean(row['error'])
           ? 'Ошибка'
           : parseString(row['transactionStatus']) == 'Отмена'
-              ? 'Отмена'
-              : '',
+          ? 'Отмена'
+          : '',
     );
     logs.add(log);
   }
@@ -112,8 +115,8 @@ Future<void> saveLogsToElastic(List<Log> logs) async {
     final response = await dio.post(url, data: json);
 
     count++;
-    if (count == 0 || count == logs.length || count % 10000 == 0) {
-      logInfo('[response] ${response.statusCode} ${log.database} ${log.id} ${log.date}');
+    if (count == 0 || count == logs.length-1 || count % 10000 == 0) {
+      logInfo('[$count) response] ${response.statusCode} ${log.database} ${log.id} ${log.date}');
     }
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw 'Elastic response error: ${response.statusCode} ${response.statusMessage} ${response.toString()}';
