@@ -23,6 +23,14 @@ logError(String error) {
   printError(error);
 
   final now = DateTime.now();
-  final file = File(Config.kErrorsFileName);
+  final file = File(Config.kLogErrorFileName);
   file.writeAsStringSync("${DateFormat('dd MMM hh:mm:ss').format(now)} $error\n", mode: FileMode.append);
+}
+
+logInfo(String info) {
+  printInfo(info);
+
+  final now = DateTime.now();
+  final file = File(Config.kLogInfoFileName);
+  file.writeAsStringSync("${DateFormat('dd MMM hh:mm:ss').format(now)} $info\n", mode: FileMode.append);
 }

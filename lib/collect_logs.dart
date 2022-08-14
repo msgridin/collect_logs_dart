@@ -14,6 +14,7 @@ const int kMillisecondsFromAdToEpoch = 62135596800000;
 
 Future<void> doCollectLogs() async {
   try {
+    logInfo('[doCollectLogs]');
     final paramsList = await readParamsFile(Config.kParamsFileName);
 
     for (final params in paramsList) {
@@ -26,6 +27,7 @@ Future<void> doCollectLogs() async {
 }
 
 Future<List<Params>> readParamsFile(String path) async {
+  logInfo('[readParamsFile] $path');
   final paramsList = <Params>[];
   final file = File(path);
 
@@ -51,6 +53,7 @@ Future<List<Params>> readParamsFile(String path) async {
 }
 
 Future<List<Log>> readLogs(Params params) async {
+  logInfo('[readLogs] ${params.database} ${params.logPath}');
   final logs = <Log>[];
   final file = File(params.logPath);
   open.overrideFor(OperatingSystem.windows, _openOnWindows);
@@ -90,11 +93,12 @@ Future<List<Log>> readLogs(Params params) async {
 
 DynamicLibrary _openOnWindows() {
   final scriptDir = File(Platform.script.toFilePath()).parent;
-  final libraryNextToScript = File('${scriptDir.path}/sqlite3.dll');
+  final libraryNextToScript = File('${scriptDir.path}\\sqlite3.dll');
   return DynamicLibrary.open(libraryNextToScript.path);
 }
 
 Future<void> saveLogsToElastic(List<Log> logs) async {
+  logInfo('[saveLogsToElastic] ${logs.length}');
   final now = DateTime.now();
   final String table = "utp_logs-${DateFormat('yyyy.MM').format(now)}";
   var auth = 'Basic ${base64Encode(utf8.encode('${Config.kElasticLogin}:${Config.kElasticPassword}'))}';
@@ -105,8 +109,8 @@ Future<void> saveLogsToElastic(List<Log> logs) async {
     final url = '${Config.kElasticUrl}/$table/_doc/${log.id}';
     final json = jsonEncode(log);
     final response = await dio.post(url, data: json);
-    printError('${response.statusCode} ${log.id}');
 
+    logInfo('[response] ${response.statusCode} ${log.database} ${log.id} ${log.date}');
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw 'Elastic response error: ${response.statusCode} ${response.statusMessage} ${response.toString()}';
     }
@@ -187,5 +191,5 @@ WITH EventNames(code, name) AS
     LEFT JOIN EventNames en ON ec.name = en.code
     LEFT JOIN MetadataCodes m ON e.metadataCodes = m.code
     WHERE (date >= ? AND date <= ?)
-    ORDER BY date desc;
+    ORDER BY date asc;
 """;

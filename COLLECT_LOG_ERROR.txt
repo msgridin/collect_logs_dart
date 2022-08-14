@@ -1,0 +1,2 @@
+14 Aug 01:38:22 Invalid argument(s): Failed to load dynamic library 'D:\dev\flutter\projects\collect_logs\bin/sqlite3.dll': error code 126
+14 Aug 01:39:33 Invalid argument(s): Failed to load dynamic library 'D:\dev\flutter\projects\collect_logs\bin\sqlite3.dll': error code 126
