@@ -1,1 +1,4 @@
-14 Aug 01:49:53 [response] 200 utp_corp 637958856200007 2022-08-12 10:20:20.000
+10:07:17 15 Aug [doCollectLogs]
+10:07:17 15 Aug [readParamsFile] collect_logs_params.txt
+10:07:17 15 Aug [readLogs] utp_corp \\DE11C01\$reg_1541\4be0160f-fb0c-479a-9a45-5ef56c488824\1Cv8Log\1Cv8.lgd
+10:08:03 15 Aug [readLogs] utp_corp 11559

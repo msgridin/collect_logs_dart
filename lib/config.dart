@@ -5,4 +5,5 @@ class Config {
   static const String kParamsFileName = "collect_logs_params.txt";
   static const String kLogErrorFileName = "COLLECT_LOG_ERROR.txt";
   static const String kLogInfoFileName = "collect_log_info.txt";
+  static const int kElasticRequestBulkSize = 1000;
 }

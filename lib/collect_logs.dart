@@ -53,7 +53,6 @@ Future<List<Params>> readParamsFile(String path) async {
 }
 
 Future<List<Log>> readLogs(Params params) async {
-  logInfo('[readLogs] ${params.database} ${params.logPath}');
   final logs = <Log>[];
   final file = File(params.logPath);
   open.overrideFor(OperatingSystem.windows, _openOnWindows);
@@ -109,17 +108,20 @@ Future<void> saveLogsToElastic(List<Log> logs) async {
       connectTimeout: 5000, receiveTimeout: 3000, headers: <String, String>{'authorization': auth, 'Content-Type': 'application/json'});
   final dio = Dio(options);
   int count = 0;
+  String body = '';
   for (final log in logs) {
-    final url = '${Config.kElasticUrl}/$table/_doc/${log.id}';
+    final url = '${Config.kElasticUrl}/$table/_doc/_bulk?pretty';
     final json = jsonEncode(log);
-    final response = await dio.post(url, data: json);
-
+    body += '{"index":{"_id" : "${log.id}"}}\n';
+    body += '$json\n';
     count++;
-    if (count == 0 || count == logs.length-1 || count % 10000 == 0) {
-      logInfo('[$count) response] ${response.statusCode} ${log.database} ${log.id} ${log.date}');
-    }
-    if (response.statusCode != 200 && response.statusCode != 201) {
-      throw 'Elastic response error: ${response.statusCode} ${response.statusMessage} ${response.toString()}';
+    if (count % Config.kElasticRequestBulkSize == 0 || count == logs.length) {
+      final response = await dio.post(url, data: body);
+      logInfo('[$count response] ${response.statusCode} ${log.database} ${log.id} ${log.date}');
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        throw 'Elastic response error: ${response.statusCode} ${response.statusMessage} ${response.toString()}';
+      }
+      body = '';
     }
   }
 }
