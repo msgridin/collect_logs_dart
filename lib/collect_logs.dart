@@ -53,6 +53,7 @@ Future<List<Params>> readParamsFile(String path) async {
 }
 
 Future<List<Log>> readLogs(Params params) async {
+  logInfo('[readLogs] ${params.database}');
   final logs = <Log>[];
   final file = File(params.logPath);
   open.overrideFor(OperatingSystem.windows, _openOnWindows);
@@ -65,7 +66,6 @@ Future<List<Log>> readLogs(Params params) async {
   final db = sqlite3.open(params.logPath, mode: OpenMode.readOnly);
 
   final ResultSet resultSet = db.select(_requestText, [params.startLogRecord, params.endLogRecord]);
-  logInfo('[readLogs] ${params.database} ${resultSet.length}');
   for (var row in resultSet) {
     final log = Log(
       id: row['id'],
