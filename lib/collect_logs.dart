@@ -133,7 +133,9 @@ onSuccessComplete() {
 
 deleteErrorFile() {
   final file = File(Config.kLogErrorFileName);
-  file.deleteSync();
+  if (file.existsSync()) {
+    file.deleteSync();
+  }
 }
 
 DateTime idToDateTime(int id) => DateTime.fromMillisecondsSinceEpoch(id ~/ 10 - kMillisecondsFromAdToEpoch);
