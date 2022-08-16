@@ -21,6 +21,7 @@ Future<void> doCollectLogs() async {
       final logs = await readLogs(params);
       await saveLogsToElastic(logs);
     }
+    onSuccessComplete();
   } catch (e) {
     logError(e.toString());
   }
@@ -124,6 +125,15 @@ Future<void> saveLogsToElastic(List<Log> logs) async {
       body = '';
     }
   }
+}
+
+onSuccessComplete() {
+  deleteErrorFile();
+}
+
+deleteErrorFile() {
+  final file = File(Config.kLogErrorFileName);
+  file.deleteSync();
 }
 
 DateTime idToDateTime(int id) => DateTime.fromMillisecondsSinceEpoch(id ~/ 10 - kMillisecondsFromAdToEpoch);
