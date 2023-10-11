@@ -111,9 +111,9 @@ Future<void> saveLogsToElastic(List<Log> logs) async {
   int count = 0;
   String body = '';
   for (final log in logs) {
-    final url = '${Config.kElasticUrl}/$table/_doc/_bulk?pretty';
+    final url = '${Config.kElasticUrl}/_bulk';
     final json = jsonEncode(log);
-    body += '{"index":{"_id" : "${log.id}"}}\n';
+    body += '{"index":{"_index" : "$table","_id" : "${log.id}"}}\n';
     body += '$json\n';
     count++;
     if (count % Config.kElasticRequestBulkSize == 0 || count == logs.length) {
